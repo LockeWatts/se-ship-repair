@@ -1,8 +1,11 @@
 local shared = require("shared")
 
--- Early Spaceships moves the Spaceship technology to the cargo rocket's place in
--- data-updates. This runs after it, puts Spaceship repair in that same place, and
--- makes building new ships follow from repairing the first one.
+-- Spaceship tiers first: this moves the Spaceship technology to the cargo rocket's
+-- place and splits the part recipes into early and refined.
+require("prototypes.spaceship-tiers")
+
+-- Spaceship repair goes in that same place, and building new ships follows from
+-- repairing the first one.
 local launch_pad = data.raw.technology["se-rocket-launch-pad"]
 local spaceship = data.raw.technology["se-spaceship"]
 if not (launch_pad and spaceship) then

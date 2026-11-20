@@ -35,14 +35,28 @@ data.raw.container["crash-site-spaceship"] = { type = "container", name = "crash
 local packs = { {"automation-science-pack", 1}, {"se-rocket-science-pack", 1} }
 data.raw.technology["se-rocket-launch-pad"] = { type = "technology", name = "se-rocket-launch-pad", prerequisites = {"se-thruster-suit"}, unit = { count = 300, time = 60, ingredients = packs } }
 data.raw.technology["se-spaceship"] = { type = "technology", name = "se-spaceship", icon = "spaceship.png", icon_size = 128, order = "e-g", prerequisites = {"se-thruster-suit"}, unit = { count = 200, time = 60, ingredients = packs } }
-local function recipe(name, ingredients) data.raw.recipe[name] = { type = "recipe", name = name, ingredients = ingredients, results = { { type = "item", name = name, amount = 1 } } } end
--- Early Spaceships' part recipes, as of its version 1.4.0.
-recipe("se-spaceship-console", { {type="item", name="glass", amount=20}, {type="item", name="low-density-structure", amount=20}, {type="item", name="processing-unit", amount=200}, {type="item", name="rocket-control-unit", amount=20} })
-recipe("se-spaceship-floor", { {type="item", name="low-density-structure", amount=5}, {type="item", name="se-heat-shielding", amount=4} })
-recipe("se-spaceship-wall", { {type="item", name="steel-plate", amount=10}, {type="item", name="glass", amount=8}, {type="item", name="low-density-structure", amount=4}, {type="item", name="se-heat-shielding", amount=4} })
-recipe("se-spaceship-gate", { {type="item", name="se-spaceship-wall", amount=1}, {type="item", name="electric-engine-unit", amount=6}, {type="item", name="low-density-structure", amount=1}, {type="item", name="se-heat-shielding", amount=1} })
-recipe("se-spaceship-rocket-engine", { {type="item", name="pump", amount=4}, {type="item", name="steel-plate", amount=20}, {type="item", name="se-heat-shielding", amount=20}, {type="item", name="pipe", amount=20}, {type="item", name="electric-engine-unit", amount=10}, {type="fluid", name="lubricant", amount=25} })
-recipe("se-spaceship-rocket-booster-tank", { {type="item", name="pump", amount=4}, {type="item", name="steel-plate", amount=10}, {type="item", name="storage-tank", amount=10}, {type="item", name="se-heat-shielding", amount=10}, {type="fluid", name="lubricant", amount=25}, {type="item", name="electric-engine-unit", amount=4} })
+local function recipe(name, ingredients, category) data.raw.recipe[name] = { type = "recipe", name = name, categories = category and { category } or nil, ingredients = ingredients, results = { { type = "item", name = name, amount = 1 } } } end
+local function I(name, amount) return { type = "item", name = name, amount = amount } end
+-- Space Exploration's own part recipes (0.7.65), which become the refined tier.
+recipe("se-spaceship-console", { I("se-aeroframe-pole", 20), I("glass", 20), I("low-density-structure", 20), I("processing-unit", 200), I("se-astronomic-catalogue-3", 1) })
+recipe("se-spaceship-floor", { I("se-aeroframe-bulkhead", 4), I("se-heat-shielding", 4) })
+recipe("se-spaceship-wall", { I("se-aeroframe-bulkhead", 2), I("glass", 8), I("low-density-structure", 4), I("se-heat-shielding", 4) })
+recipe("se-spaceship-gate", { I("se-spaceship-wall", 1), I("electric-engine-unit", 6), I("se-aeroframe-bulkhead", 1), I("se-heat-shielding", 1) })
+recipe("se-spaceship-rocket-engine", { I("se-aeroframe-scaffold", 4), I("steel-plate", 20), I("se-heat-shielding", 20), I("se-space-pipe", 20), I("electric-engine-unit", 10) })
+recipe("se-spaceship-rocket-booster-tank", { I("se-aeroframe-scaffold", 4), I("steel-plate", 10), I("storage-tank", 10), I("se-heat-shielding", 10), I("se-space-pipe", 4), I("electric-engine-unit", 4) })
+recipe("se-spaceship-ion-engine", { I("se-spaceship-rocket-engine", 1), I("low-density-structure", 40), I("se-holmium-cable", 40), I("se-holmium-solenoid", 8) })
+recipe("se-spaceship-ion-booster-tank", { I("storage-tank", 1), I("electric-engine-unit", 4), I("se-holmium-solenoid", 8), I("se-beryllium-plate", 10), I("se-holmium-cable", 40) })
+recipe("se-spaceship-clamp", { I("se-aeroframe-scaffold", 10), I("se-heavy-girder", 6), I("electric-engine-unit", 10), I("processing-unit", 10) })
+recipe("se-space-pipe", { I("steel-plate", 1) }, "space-crafting")
+SEItemNames = { get_glass_name = function() return "glass" end }
+local function unlocks(...) local e = {} for _, r in ipairs({...}) do e[#e + 1] = { type = "unlock-recipe", recipe = r } end return e end
+local space_packs = { {"automation-science-pack", 1}, {"se-rocket-science-pack", 1}, {"se-astronomic-science-pack-3", 1}, {"utility-science-pack", 1} }
+local st = data.raw.technology["se-spaceship"]
+st.prerequisites = { "se-astronomic-science-pack-3", "se-aeroframe-bulkhead" } st.unit.ingredients = table.deepcopy(space_packs)
+st.effects = unlocks("se-spaceship-console", "se-spaceship-floor", "se-spaceship-wall", "se-spaceship-gate", "se-spaceship-rocket-engine", "se-spaceship-rocket-booster-tank")
+data.raw.technology["se-spaceship-clamps"] = { type = "technology", name = "se-spaceship-clamps", prerequisites = { "se-spaceship", "se-heavy-girder" }, effects = unlocks("se-spaceship-clamp"), unit = { count = 500, time = 60, ingredients = table.deepcopy(space_packs) } }
+data.raw.technology["se-ion-engine"] = { type = "technology", name = "se-ion-engine", prerequisites = { "se-spaceship", "se-holmium-solenoid" }, effects = unlocks("se-spaceship-ion-engine", "se-spaceship-ion-booster-tank"), unit = { count = 1600, time = 60, ingredients = table.deepcopy(space_packs) } }
+data.raw.technology["se-spaceship-integrity-1"] = { type = "technology", name = "se-spaceship-integrity-1", prerequisites = { "se-spaceship", "se-material-science-pack-1" }, unit = { count_formula = "2^L*50", time = 60, ingredients = { {"automation-science-pack", 1}, {"se-astronomic-science-pack-3", 1}, {"se-material-science-pack-1", 1} } } }
 ''')
     for stage in ("data", "data-updates", "data-final-fixes"):
         L.execute('dofile("%s/%s.lua")' % (MOD, stage))
@@ -58,7 +72,11 @@ recipe("se-spaceship-rocket-booster-tank", { {type="item", name="pump", amount=4
   end
   out[#out + 1] = "WRECK minable=" .. tostring(data.raw.container["crash-site-spaceship"].minable) .. " picture layer dice_x=" .. tostring(data.raw.container["crash-site-spaceship"].picture.layers[1].dice_x)
   out[#out + 1] = "TECH " .. ser(data.raw.technology["sesr-spaceship-repair"])
-  out[#out + 1] = "se-spaceship prerequisites " .. ser(data.raw.technology["se-spaceship"].prerequisites)
+  out[#out + 1] = "se-spaceship prerequisites " .. ser(data.raw.technology["se-spaceship"].prerequisites) .. " packs " .. ser(data.raw.technology["se-spaceship"].unit.ingredients)
+  for _, t in ipairs({ "sesr-refined-spaceship", "sesr-refined-spaceship-clamps", "sesr-refined-ion-engine", "se-spaceship-clamps", "se-ion-engine", "se-spaceship-integrity-1" }) do local tech = data.raw.technology[t]
+    out[#out + 1] = "TECH " .. t .. " prerequisites " .. ser(tech.prerequisites) .. " packs " .. ser(tech.unit.ingredients) .. (tech.effects and (" unlocks " .. ser(tech.effects)) or "") end
+  for _, r in ipairs({ "se-spaceship-floor", "sesr-refined-spaceship-floor", "se-spaceship-rocket-engine", "sesr-refined-spaceship-rocket-engine", "se-space-pipe" }) do local recipe = data.raw.recipe[r]
+    out[#out + 1] = "RECIPE " .. r .. " enabled=" .. tostring(recipe.enabled) .. " categories=" .. ser(recipe.categories) .. " " .. ser(recipe.ingredients) end
   return table.concat(out, "\n") end)()'''))
 
 # ---------------------------------------------------------------- runtime stage

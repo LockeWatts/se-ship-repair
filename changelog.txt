@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 20. 11. 2026
+  Features:
+    - Spaceships now move to rocket science in this mod itself; Early Spaceships is no longer needed and is marked incompatible.
+    - Every spaceship part has an early recipe and a refined recipe. The refined ones are Space Exploration's originals, unlocked by new Refined technologies.
+  Changes:
+    - The repaired ship has a tapered nose, 12 x 21 tiles overall, and is fully streamlined.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 20. 11. 2026
   Changes:

@@ -2,7 +2,7 @@
 
 Your first spaceship is the one you crashed in.
 
-In [Space Exploration](https://mods.factorio.com/mod/space-exploration) with [Early Spaceships](https://mods.factorio.com/mod/se-early-spaceships), this mod turns the wreck at the crash site into a repair project. Finish it and the wreck is rebuilt, where it lies, as a working spaceship.
+In [Space Exploration](https://mods.factorio.com/mod/space-exploration), this mod turns the wreck at the crash site into a repair project. Finish it and the wreck is rebuilt, where it lies, as a working spaceship. It also brings spaceships forward to rocket science, so you never need a cargo rocket.
 
 ## How it works
 
@@ -16,23 +16,32 @@ When the last stage finishes, the wreck is replaced by a complete spaceship abou
 
 Each stage costs a share (half, by default) of what the same parts cost to craft.
 
-## Technology
+## Spaceships at rocket science
 
-Spaceship repair sits where Early Spaceships puts the Spaceship technology, at rocket science, and Spaceship now follows it. You repair your first ship, then learn to build new ones.
+The Spaceship technology moves to the cargo rocket's place in the tree, and the clamp, integrity and ion engine technologies move earlier to match.
+
+Every spaceship part has two recipes:
+
+- **Early**: made from early-game materials, and deliberately costly. Unlocked with the part's technology.
+- **Refined**: Space Exploration's original recipe, unlocked by a "Refined" technology where Space Exploration originally unlocked the part.
+
+Spaceship repair sits beside the launch pad at rocket science, and Spaceship follows it. You repair your first ship, then learn to build new ones.
 
 ## Good to know
 
 - The wreck can no longer be mined or destroyed.
-- The finished ship needs a 12 x 19 tile area centred on the wreck. It is outlined when the last stage begins. Trees, rocks and loose wreckage are cleared automatically; anything you built there has to be moved first, and the mod tells you what is in the way.
+- The finished ship needs a 12 x 21 tile area centred on the wreck. It is outlined when the last stage begins. Trees, rocks and loose wreckage are cleared automatically; anything you built there has to be moved first, and the mod tells you what is in the way.
 - Added to an existing save where the wreck is gone, the mod places a repair site near spawn.
-- Costs, timings and the ship's layout are set in `config.lua` and `shared.lua`.
+- Repair costs and timings are set in `config.lua`, the ship's layout in `shared.lua`, and the early part recipes in `early-recipes.lua`.
+- The ship has a tapered nose and scores 100% on Space Exploration's streamlining.
 
 ## Requirements
 
 - Factorio 2.1
 - Space Exploration 0.7.64 or later
-- Space Exploration: Early Spaceships 1.4.0 or later
+
+It replaces Space Exploration: Early Spaceships and cannot be used alongside it.
 
 ## Credits
 
-Space Exploration is by Earendel. Early Spaceships is by stringweasel. This mod depends on both and contains none of their code or artwork.
+Space Exploration is by Earendel. The move of spaceships to rocket science follows the design of Early Spaceships by stringweasel; see `NOTICE.md`. This mod contains none of Space Exploration's code or artwork.

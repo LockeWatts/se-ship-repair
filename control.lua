@@ -238,16 +238,15 @@ local function build_ship(surface, origin, force, site, removable, characters)
   site.destroy()
   storage.site = nil
 
+  local built = shared.build_layout()
   local tiles = {}
-  for y = 0, layout.length - 1 do
-    for x = 0, layout.width - 1 do
-      table.insert(tiles, { name = shared.floor_tile, position = { x = origin.x + x, y = origin.y + y } })
-    end
+  for _, tile in ipairs(built.tiles) do
+    table.insert(tiles, { name = shared.floor_tile, position = { x = origin.x + tile.x, y = origin.y + tile.y } })
   end
   surface.set_tiles(tiles, true, false, true, true)
 
   local complete = true
-  for _, wall in ipairs(shared.build_layout().walls) do
+  for _, wall in ipairs(built.walls) do
     complete = place(surface, force, shared.parts.wall, origin, { x = wall.x + 0.5, y = wall.y + 0.5 }) and complete
   end
   for _, gate in ipairs(layout.gates) do
