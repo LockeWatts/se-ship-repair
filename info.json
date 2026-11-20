@@ -1,0 +1,14 @@
+{
+  "name": "se-ship-repair",
+  "version": "0.1.0",
+  "title": "Space Exploration: Ship Repair",
+  "author": "LockeWatts",
+  "homepage": "https://github.com/LockeWatts/se-ship-repair",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "base >= 2.1.23",
+    "space-exploration >= 0.7.64",
+    "se-early-spaceships >= 1.4.0"
+  ],
+  "description": "Your first spaceship is the one you crashed in. The wreck at the crash site becomes a repair site: restore its hull, systems and propulsion in three stages, and it is rebuilt on the spot as a working Space Exploration spaceship. Requires Space Exploration: Early Spaceships."
+}

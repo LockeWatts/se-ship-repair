@@ -1,0 +1,7 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 20. 11. 2026
+  Features:
+    - The crashed spaceship becomes a repair site with three stages: hull, systems and propulsion.
+    - Finishing the last stage rebuilds the wreck as a working Space Exploration spaceship.
+    - Added the Spaceship repair technology, which the Spaceship technology now follows.
