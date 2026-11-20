@@ -1,14 +1,15 @@
 local shared = require("shared")
 
--- Spaceship tiers first: this moves the Spaceship technology to the cargo rocket's
--- place and splits the part recipes into early and refined.
-require("prototypes.spaceship-tiers")
+-- Crude spaceship recipes and technologies first: this puts a crude Spaceship
+-- technology in the cargo rocket launch pad's place.
+require("prototypes.crude-spaceships")
 
--- Spaceship repair goes in that same place, and building new ships follows from
--- repairing the first one.
+-- Spaceship repair goes in that same place, and building new ships, crudely at
+-- first, follows from repairing the one you crashed in.
 local launch_pad = data.raw.technology["se-rocket-launch-pad"]
 local spaceship = data.raw.technology["se-spaceship"]
-if not (launch_pad and spaceship) then
+local crude_spaceship = data.raw.technology[shared.crude_name("se-spaceship")]
+if not (launch_pad and spaceship and crude_spaceship) then
   error("se-ship-repair: Space Exploration's 'se-rocket-launch-pad' or 'se-spaceship' technology was not found.")
 end
 
@@ -26,7 +27,4 @@ data:extend({
   },
 })
 
-spaceship.prerequisites = spaceship.prerequisites or {}
-local already = false
-for _, name in pairs(spaceship.prerequisites) do already = already or name == shared.tech_name end
-if not already then table.insert(spaceship.prerequisites, shared.tech_name) end
+table.insert(crude_spaceship.prerequisites, shared.tech_name)

@@ -2,7 +2,7 @@
 
 This mod moves spaceships to rocket science in the same way as
 [Space Exploration: Early Spaceships](https://mods.factorio.com/mod/se-early-spaceships) by stringweasel,
-and its early part recipes start from that mod's values. Early Spaceships is released under the MIT licence:
+and its crude part recipes currently use that mod's values as placeholders. Early Spaceships is released under the MIT licence:
 
 ```
 MIT License

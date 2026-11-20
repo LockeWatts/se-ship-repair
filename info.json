@@ -1,6 +1,6 @@
 {
   "name": "se-ship-repair",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Space Exploration: Ship Repair",
   "author": "LockeWatts",
   "homepage": "https://github.com/LockeWatts/se-ship-repair",
@@ -10,5 +10,5 @@
     "space-exploration >= 0.7.64",
     "! se-early-spaceships"
   ],
-  "description": "Your first spaceship is the one you crashed in. The wreck at the crash site becomes a repair site: restore its hull, systems and propulsion in three stages, and it is rebuilt on the spot as a working Space Exploration spaceship. Spaceships become available at rocket science, with costly early recipes for their parts and the efficient originals unlocked later."
+  "description": "Your first spaceship is the one you crashed in. The wreck at the crash site becomes a repair site: restore its hull, systems and propulsion in three stages, and it is rebuilt on the spot as a working Space Exploration spaceship. Adds costly crude recipes that make spaceships buildable from rocket science; Space Exploration's own recipes are unchanged."
 }

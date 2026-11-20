@@ -1,45 +1,102 @@
+"""Works out what Space Exploration's own spaceship part recipes cost in raw materials.
+
+The recipes below were read from three places and are per ONE unit of the product:
+  base   Factorio 2.1.25 (wube/factorio-data, base/prototypes/recipe.lua)
+  aai    AAI Industry 0.7.5, which replaces several base recipes
+  se     Space Exploration 0.7.65
+Conventions: no productivity or modules; sand made by hand or assembler (2 per stone,
+the pulveriser gives 3); the vulcanite (pyroflux) smelting routes; chance-based steps
+taken at their average.
+
+Usage: python3 dev/part_costs.py
+"""
 from collections import defaultdict
-SUB = {  # recipes defined or altered by Space Exploration (0.7.65), per 1 item
- "low-density-structure": {"steel-plate":5,"copper-plate":10,"glass":10,"plastic-bar":10},
- "glass": {"stone":2},
- "se-heat-shielding": {"stone-tablet":20,"sulfur":8,"steel-plate":2},
- "rocket-control-unit": {"iron-plate":5,"glass":5,"battery":5,"advanced-circuit":5},
- "se-aeroframe-pole": {"iron-stick":1,"se-beryllium-plate":2},
- "se-aeroframe-scaffold": {"se-aeroframe-pole":4,"se-cryonite-rod":1},
- "se-aeroframe-bulkhead": {"low-density-structure":2,"se-aeroframe-scaffold":2,"se-beryllium-plate":8},
+
+R = {
+    # --- base
+    "iron-plate": {"iron-ore": 1}, "copper-plate": {"copper-ore": 1},
+    "steel-plate": {"iron-plate": 5}, "stone-brick": {"stone": 2},
+    "copper-cable": {"copper-plate": 0.5}, "iron-gear-wheel": {"iron-plate": 2},
+    "iron-stick": {"iron-plate": 0.5}, "pipe": {"iron-plate": 1},
+    "advanced-circuit": {"electronic-circuit": 2, "plastic-bar": 2, "copper-cable": 4},
+    "processing-unit": {"electronic-circuit": 20, "advanced-circuit": 2, "sulfuric-acid": 5},
+    "plastic-bar": {"coal": 0.5, "petroleum-gas": 10},
+    "sulfur": {"petroleum-gas": 15, "water": 15},
+    "sulfuric-acid": {"sulfur": 0.1, "iron-plate": 0.02, "water": 2},
+    "battery": {"sulfuric-acid": 20, "iron-plate": 1, "copper-plate": 1},
+    "storage-tank": {"iron-plate": 20, "steel-plate": 5},
+    "lubricant": {"heavy-oil": 1},
+    # --- aai
+    "stone-tablet": {"stone-brick": 0.25},
+    "sand": {"stone": 0.5}, "glass": {"sand": 4},
+    "electronic-circuit": {"stone-tablet": 1, "copper-cable": 3},
+    "electric-motor": {"iron-plate": 1, "iron-gear-wheel": 1, "copper-cable": 6},
+    "electric-engine-unit": {"lubricant": 40, "steel-plate": 2, "electronic-circuit": 4, "electric-motor": 2},
+    "pump": {"electric-motor": 2, "pipe": 2, "steel-plate": 1},
+    # --- se
+    "low-density-structure": {"steel-plate": 5, "copper-plate": 10, "glass": 10, "plastic-bar": 10},
+    "se-heat-shielding": {"stone-tablet": 20, "sulfur": 8, "steel-plate": 2},
+    "se-space-pipe": {"copper-cable": 2, "steel-plate": 1, "plastic-bar": 1, "glass": 1},
+    "se-aeroframe-pole": {"iron-stick": 1, "se-beryllium-plate": 2},
+    "se-aeroframe-scaffold": {"se-aeroframe-pole": 4, "se-cryonite-rod": 1},
+    "se-aeroframe-bulkhead": {"low-density-structure": 2, "se-aeroframe-scaffold": 2, "se-beryllium-plate": 8},
+    "se-cryonite-rod": {"cryonite": 10, "heavy-oil": 1},
+    "se-pyroflux": {"vulcanite": 1, "sand": 0.1},
+    "se-vulcanite-block": {"vulcanite": 10, "sulfur": 0.67},
+    # 1 plate = 5 hydroxide = 2.5 sulfate (4 ore + 1 acid each) + 0.1 cryonite rod + 1 pyroflux
+    "se-beryllium-plate": {"beryllium-ore": 10, "sulfuric-acid": 2.5, "se-cryonite-rod": 0.1, "se-pyroflux": 1, "sand": 0.2},
+    # 1 plate = 2.5 chloride (4 ore + 2 ion-exchange beads each) + 0.5 cable + 1 pyroflux
+    "se-cryonite-ion-exchange-beads": {"se-cryonite-rod": 0.1, "plastic-bar": 0.1, "sulfuric-acid": 0.5},
+    "se-holmium-plate": {"holmium-ore": 10, "se-cryonite-ion-exchange-beads": 5, "copper-cable": 0.5, "se-pyroflux": 1, "sand": 0.2},
+    "se-holmium-cable": {"se-holmium-plate": 1, "plastic-bar": 0.5},
+    "se-holmium-solenoid": {"iron-stick": 1, "se-holmium-cable": 8, "se-holmium-plate": 8},
+    "se-heavy-girder": {"se-vulcanite-block": 1, "se-iridium-plate": 4},
 }
-EARLY = {
- "console": {"glass":20,"low-density-structure":20,"processing-unit":200,"rocket-control-unit":20},
- "floor": {"low-density-structure":5,"se-heat-shielding":4},
- "wall": {"steel-plate":10,"glass":8,"low-density-structure":4,"se-heat-shielding":4},
- "gate": {"WALL":1,"electric-engine-unit":6,"low-density-structure":1,"se-heat-shielding":1},
- "rocket engine": {"pump":4,"steel-plate":20,"se-heat-shielding":20,"pipe":20,"electric-engine-unit":10,"lubricant":25},
- "booster tank": {"pump":4,"steel-plate":10,"storage-tank":10,"se-heat-shielding":10,"electric-engine-unit":4,"lubricant":25},
+# Left as they are: the catalogue is a long chain of chance-based data cards, and the
+# iridium chain was not traced.
+PARTS = {
+    "Console": {"se-aeroframe-pole": 20, "glass": 20, "low-density-structure": 20, "processing-unit": 200, "se-astronomic-catalogue-3": 1},
+    "Floor": {"se-aeroframe-bulkhead": 4, "se-heat-shielding": 4},
+    "Wall": {"se-aeroframe-bulkhead": 2, "glass": 8, "low-density-structure": 4, "se-heat-shielding": 4},
+    "Gate": {"Wall": 1, "electric-engine-unit": 6, "se-aeroframe-bulkhead": 1, "se-heat-shielding": 1},
+    "Rocket engine": {"se-aeroframe-scaffold": 4, "steel-plate": 20, "se-heat-shielding": 20, "se-space-pipe": 20, "electric-engine-unit": 10},
+    "Booster tank": {"se-aeroframe-scaffold": 4, "steel-plate": 10, "storage-tank": 10, "se-heat-shielding": 10, "se-space-pipe": 4, "electric-engine-unit": 4},
+    "Clamp": {"se-aeroframe-scaffold": 10, "se-heavy-girder": 6, "electric-engine-unit": 10, "processing-unit": 10},
+    "Ion engine": {"Rocket engine": 1, "low-density-structure": 40, "se-holmium-cable": 40, "se-holmium-solenoid": 8},
+    "Ion booster tank": {"storage-tank": 1, "electric-engine-unit": 4, "se-holmium-solenoid": 8, "se-beryllium-plate": 10, "se-holmium-cable": 40},
 }
-REFINED = {
- "console": {"se-aeroframe-pole":20,"glass":20,"low-density-structure":20,"processing-unit":200,"se-astronomic-catalogue-3":1},
- "floor": {"se-aeroframe-bulkhead":4,"se-heat-shielding":4},
- "wall": {"se-aeroframe-bulkhead":2,"glass":8,"low-density-structure":4,"se-heat-shielding":4},
- "gate": {"WALL":1,"electric-engine-unit":6,"se-aeroframe-bulkhead":1,"se-heat-shielding":1},
- "rocket engine": {"se-aeroframe-scaffold":4,"steel-plate":20,"se-heat-shielding":20,"se-space-pipe":20,"electric-engine-unit":10},
- "booster tank": {"se-aeroframe-scaffold":4,"steel-plate":10,"storage-tank":10,"se-heat-shielding":10,"se-space-pipe":4,"electric-engine-unit":4},
-}
-def expand(name, amount, tier, out):
-    if name == "WALL":
-        for k, v in tier["wall"].items(): expand(k, v * amount, tier, out)
-    elif name in SUB:
-        for k, v in SUB[name].items(): expand(k, v * amount, tier, out)
-    else: out[name] += amount
-def table(tier, label):
-    cols = defaultdict(dict)
-    for part, ing in tier.items():
-        out = defaultdict(float)
-        for k, v in ing.items(): expand(k, v, tier, out)
-        for k, v in out.items(): cols[k][part] = v
-    order = sorted(cols, key=lambda k: -sum(cols[k].values()))
-    print("\n" + label)
-    print("%-26s" % "" + "".join("%14s" % p for p in tier))
-    for k in order:
-        print("%-26s" % k + "".join("%14s" % (("%g" % cols[k][p]) if p in cols[k] else "") for p in tier))
-table(EARLY, "EARLY TIER (Early Spaceships' values)")
-table(REFINED, "REFINED TIER (Space Exploration's originals)")
+ROWS = ["iron-ore", "copper-ore", "stone", "coal", "petroleum-gas", "heavy-oil", "water",
+        "beryllium-ore", "cryonite", "vulcanite", "holmium-ore", "se-iridium-plate", "se-astronomic-catalogue-3"]
+
+def expand(name, amount, out):
+    recipe = PARTS.get(name) or R.get(name)
+    if recipe is None:
+        out[name] += amount
+    else:
+        for ingredient, count in recipe.items():
+            expand(ingredient, count * amount, out)
+
+def cost(part, amount=1):
+    out = defaultdict(float)
+    expand(part, amount, out)
+    return out
+
+def show(title, columns):
+    print("\n" + title)
+    print("%-28s" % "" + "".join("%13s" % name[:12] for name in columns))
+    for row in ROWS:
+        if any(columns[c].get(row, 0) > 0 for c in columns):
+            print("%-28s" % row + "".join("%13s" % ("{:,.0f}".format(columns[c][row]) if columns[c].get(row, 0) >= 0.5 else ("<1" if columns[c].get(row, 0) > 0 else "")) for c in columns))
+    unknown = sorted({k for c in columns.values() for k in c} - set(ROWS))
+    if unknown: print("not broken down:", unknown)
+
+if __name__ == "__main__":
+    basic = ["Console", "Floor", "Wall", "Gate", "Rocket engine", "Booster tank"]
+    show("Space Exploration's recipes, raw materials per part", {p: cost(p) for p in basic})
+    show("The later parts", {p: cost(p) for p in ["Clamp", "Ion engine", "Ion booster tank"]})
+    ship = {"Floor": 232, "Wall": 54, "Gate": 2, "Console": 1, "Rocket engine": 2, "Booster tank": 2}
+    total = defaultdict(float)
+    for part, count in ship.items():
+        for k, v in cost(part, count).items(): total[k] += v
+    show("The whole repaired ship at these prices (%s)" % ", ".join("%d %s" % (n, p.lower()) for p, n in ship.items()), {"Ship": total})
+    show("A few intermediates, for reference", {p: cost(p) for p in ["low-density-structure", "se-heat-shielding", "processing-unit", "electric-engine-unit", "se-aeroframe-bulkhead", "se-beryllium-plate"]})

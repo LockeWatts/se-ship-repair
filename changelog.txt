@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 20. 11. 2026
+  Changes:
+    - Space Exploration's spaceship part recipes and their technologies are no longer changed.
+    - The early recipes are now separate Crude recipes, unlocked by new Crude technologies at rocket science. The Refined recipes and technologies are gone.
+    - Repair costs are based on the crude recipes.
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 20. 11. 2026
   Features:

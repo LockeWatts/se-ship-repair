@@ -72,11 +72,10 @@ data.raw.technology["se-spaceship-integrity-1"] = { type = "technology", name = 
   end
   out[#out + 1] = "WRECK minable=" .. tostring(data.raw.container["crash-site-spaceship"].minable) .. " picture layer dice_x=" .. tostring(data.raw.container["crash-site-spaceship"].picture.layers[1].dice_x)
   out[#out + 1] = "TECH " .. ser(data.raw.technology["sesr-spaceship-repair"])
-  out[#out + 1] = "se-spaceship prerequisites " .. ser(data.raw.technology["se-spaceship"].prerequisites) .. " packs " .. ser(data.raw.technology["se-spaceship"].unit.ingredients)
-  for _, t in ipairs({ "sesr-refined-spaceship", "sesr-refined-spaceship-clamps", "sesr-refined-ion-engine", "se-spaceship-clamps", "se-ion-engine", "se-spaceship-integrity-1" }) do local tech = data.raw.technology[t]
+  for _, t in ipairs({ "se-spaceship", "sesr-crude-spaceship", "sesr-crude-spaceship-clamps", "sesr-crude-ion-engine", "se-spaceship-clamps", "se-ion-engine", "se-spaceship-integrity-1" }) do local tech = data.raw.technology[t]
     out[#out + 1] = "TECH " .. t .. " prerequisites " .. ser(tech.prerequisites) .. " packs " .. ser(tech.unit.ingredients) .. (tech.effects and (" unlocks " .. ser(tech.effects)) or "") end
-  for _, r in ipairs({ "se-spaceship-floor", "sesr-refined-spaceship-floor", "se-spaceship-rocket-engine", "sesr-refined-spaceship-rocket-engine", "se-space-pipe" }) do local recipe = data.raw.recipe[r]
-    out[#out + 1] = "RECIPE " .. r .. " enabled=" .. tostring(recipe.enabled) .. " categories=" .. ser(recipe.categories) .. " " .. ser(recipe.ingredients) end
+  for _, r in ipairs({ "se-spaceship-floor", "sesr-crude-spaceship-floor", "se-spaceship-rocket-engine", "sesr-crude-spaceship-rocket-engine", "se-space-pipe" }) do local recipe = data.raw.recipe[r]
+    out[#out + 1] = "RECIPE " .. r .. " enabled=" .. tostring(recipe.enabled) .. " categories=" .. ser(recipe.categories) .. " " .. ser(recipe.ingredients) .. " -> " .. ser(recipe.results) end
   return table.concat(out, "\n") end)()'''))
 
 # ---------------------------------------------------------------- runtime stage

@@ -1,8 +1,9 @@
 local config = require("config")
 local shared = require("shared")
 
--- Each stage costs a share of what its parts would cost to craft, using the part
--- recipes as they stand after every other mod has adjusted them.
+-- Each stage costs a share of what its parts would cost to craft with the crude
+-- recipes, as those stand after every other mod has adjusted them. The crude recipes
+-- are used because the repair has to be possible before space-era materials exist.
 local counts = shared.build_layout().counts
 
 local part_of_item = {}
@@ -12,7 +13,7 @@ for part, item in pairs(shared.parts) do part_of_item[item] = part end
 -- from other parts (a gate contains a wall) are broken down further. Fluids are left
 -- out: the repair site takes items only.
 local function add_cost(item_name, amount, totals, depth)
-  local recipe = data.raw.recipe[item_name]
+  local recipe = data.raw.recipe[shared.crude_name(item_name)] or data.raw.recipe[item_name]
   if not recipe then return end
   local yield = 1
   for _, result in pairs(recipe.results or {}) do

@@ -1,11 +1,14 @@
--- The early tier of spaceship part recipes: what each part costs before the refined
--- recipes are unlocked. These are meant to be inefficient.
+-- Crude recipes for spaceship parts: a second, early-game way to make each part,
+-- alongside Space Exploration's own recipe, which is left untouched.
 --
+-- Each entry is keyed by the Space Exploration recipe it is the crude version of.
 -- "@glass" stands for whichever glass item Space Exploration is using.
 -- A part may set `categories` to say where it is crafted; parts with a fluid
 -- ingredient need a category that accepts fluids.
 --
--- The values below are the ones Early Spaceships 1.4.0 uses, as a starting point.
+-- PLACEHOLDER VALUES: these are Early Spaceships 1.4.0's numbers, kept only so the
+-- recipes exist. They are due to be replaced by costs indexed against Space
+-- Exploration's own recipes.
 return {
   ["se-spaceship-console"] = {
     ingredients = {

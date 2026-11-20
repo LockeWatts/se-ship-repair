@@ -15,6 +15,12 @@ for index, key in ipairs(shared.stage_keys) do
 end
 shared.final_stage = #shared.stage_keys
 
+-- The crude counterpart of one of Space Exploration's recipes or technologies:
+-- "se-spaceship-floor" -> "sesr-crude-spaceship-floor".
+function shared.crude_name(name)
+  return shared.prefix .. "crude-" .. (string.gsub(name, "^se%-", ""))
+end
+
 -- Space Exploration prototypes the repaired ship is made of.
 shared.floor_tile = "se-spaceship-floor"
 shared.parts = {
