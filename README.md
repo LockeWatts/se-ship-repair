@@ -20,12 +20,12 @@ Each stage costs a share (half, by default) of what the same parts cost to craft
 
 Space Exploration's own spaceship recipes, and the technologies that unlock them, are left as they are. Alongside them this mod adds a crude way to build:
 
-- **Crude recipes** for every spaceship part, made from early-game materials and deliberately costly.
+- **Crude recipes** for every spaceship part ("Crude spaceship floor" and so on). They make the same parts from the materials rockets are built of, at about twice the raw material cost of the proper recipes.
 - **Crude technologies** that unlock them: a crude Spaceship technology in the cargo rocket launch pad's place, and crude clamp and ion engine technologies after it.
 
 Spaceship repair sits beside the launch pad at rocket science, and the crude Spaceship technology follows it. You repair your first ship, learn to build crude ones, and reach Space Exploration's proper recipes when you get to them.
 
-Two of Space Exploration's own prototypes do change. The spaceship integrity technologies move earlier, so an early ship can grow, and space pipes can be crafted on the ground.
+Two of Space Exploration's own prototypes do change. The first two spaceship integrity levels move earlier, so an early ship can grow a little, and space pipes can be crafted on the ground.
 
 ## Good to know
 

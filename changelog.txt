@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 20. 11. 2026
+  Changes:
+    - Crude recipes now cost about twice the raw materials of Space Exploration's own recipes.
+    - Crude recipes and technologies are named "Crude spaceship floor" and so on.
+    - Only the first two spaceship integrity levels move earlier; the rest stay where Space Exploration puts them.
+---------------------------------------------------------------------------------------------------
 Version: 0.3.0
 Date: 20. 11. 2026
   Changes:

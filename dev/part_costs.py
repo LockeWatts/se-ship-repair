@@ -51,9 +51,13 @@ R = {
     "se-holmium-cable": {"se-holmium-plate": 1, "plastic-bar": 0.5},
     "se-holmium-solenoid": {"iron-stick": 1, "se-holmium-cable": 8, "se-holmium-plate": 8},
     "se-heavy-girder": {"se-vulcanite-block": 1, "se-iridium-plate": 4},
+    # 1 plate = 1 blastcake = 5 powder = 10 ore + 3.4 ion-exchange beads + 0.25 enriched vulcanite + 0.5 pyroflux
+    "se-vulcanite-ion-exchange-beads": {"se-vulcanite-block": 0.1, "plastic-bar": 0.1, "sulfuric-acid": 0.5},
+    "se-iridium-plate": {"iridium-ore": 10, "se-vulcanite-ion-exchange-beads": 3.4, "vulcanite": 1, "se-pyroflux": 0.5},
+    # Space Exploration's rocket control unit (not used by its ship parts, but by the crude console)
+    "rocket-control-unit": {"iron-plate": 5, "glass": 5, "battery": 5, "advanced-circuit": 5},
 }
-# Left as they are: the catalogue is a long chain of chance-based data cards, and the
-# iridium chain was not traced.
+# Left as it is: the astronomic catalogue is a long chain of chance-based data cards.
 PARTS = {
     "Console": {"se-aeroframe-pole": 20, "glass": 20, "low-density-structure": 20, "processing-unit": 200, "se-astronomic-catalogue-3": 1},
     "Floor": {"se-aeroframe-bulkhead": 4, "se-heat-shielding": 4},
@@ -66,19 +70,42 @@ PARTS = {
     "Ion booster tank": {"storage-tank": 1, "electric-engine-unit": 4, "se-holmium-solenoid": 8, "se-beryllium-plate": 10, "se-holmium-cable": 40},
 }
 ROWS = ["iron-ore", "copper-ore", "stone", "coal", "petroleum-gas", "heavy-oil", "water",
-        "beryllium-ore", "cryonite", "vulcanite", "holmium-ore", "se-iridium-plate", "se-astronomic-catalogue-3"]
+        "beryllium-ore", "cryonite", "vulcanite", "holmium-ore", "iridium-ore", "se-astronomic-catalogue-3"]
 
-def expand(name, amount, out):
-    recipe = PARTS.get(name) or R.get(name)
+# One number for comparing recipes: every solid raw material counts 1 each, whatever it
+# is, so beryllium ore is valued like copper ore and iridium ore like iron ore. Oil
+# products count a tenth each and water nothing.
+WEIGHT = {"petroleum-gas": 0.1, "heavy-oil": 0.1, "water": 0, "se-astronomic-catalogue-3": 0}
+
+def ore_equivalents(raw):
+    return sum(WEIGHT.get(name, 1) * amount for name, amount in raw.items())
+
+def crude_recipes():
+    """The crude recipes from crude-recipes.lua, as {part: {ingredient: amount}}."""
+    import os, lupa
+    mod = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    lua = lupa.LuaRuntime(unpack_returned_tuples=True)
+    lua.execute('package.path = "%s/?.lua;" .. package.path' % mod)
+    table = lua.eval('(require("crude-recipes"))')
+    part_of = {"se-spaceship-console": "Console", "se-spaceship-floor": "Floor", "se-spaceship-wall": "Wall", "se-spaceship-gate": "Gate",
+               "se-spaceship-rocket-engine": "Rocket engine", "se-spaceship-rocket-booster-tank": "Booster tank",
+               "se-spaceship-clamp": "Clamp", "se-spaceship-ion-engine": "Ion engine", "se-spaceship-ion-booster-tank": "Ion booster tank"}
+    out = {}
+    for name, entry in table.items():
+        out[part_of[name]] = {("glass" if i.name == "@glass" else part_of.get(i.name, i.name)): i.amount for i in entry.ingredients.values()}
+    return out
+
+def expand(name, amount, out, parts=None):
+    recipe = (parts or PARTS).get(name) or R.get(name)
     if recipe is None:
         out[name] += amount
     else:
         for ingredient, count in recipe.items():
-            expand(ingredient, count * amount, out)
+            expand(ingredient, count * amount, out, parts)
 
-def cost(part, amount=1):
+def cost(part, amount=1, parts=None):
     out = defaultdict(float)
-    expand(part, amount, out)
+    expand(part, amount, out, parts)
     return out
 
 def show(title, columns):
@@ -100,3 +127,17 @@ if __name__ == "__main__":
         for k, v in cost(part, count).items(): total[k] += v
     show("The whole repaired ship at these prices (%s)" % ", ".join("%d %s" % (n, p.lower()) for p, n in ship.items()), {"Ship": total})
     show("A few intermediates, for reference", {p: cost(p) for p in ["low-density-structure", "se-heat-shielding", "processing-unit", "electric-engine-unit", "se-aeroframe-bulkhead", "se-beryllium-plate"]})
+
+    crude = crude_recipes()
+    print("\nCrude recipes against Space Exploration's, in ore-equivalents (see WEIGHT)")
+    print("%-18s %12s %12s %7s   crude ingredients" % ("", "SE", "crude", "ratio"))
+    for part in list(PARTS):
+        se, cr = ore_equivalents(cost(part)), ore_equivalents(cost(part, 1, crude))
+        print("%-18s %12s %12s %6.2fx   %s" % (part, "{:,.0f}".format(se), "{:,.0f}".format(cr), cr / se,
+              ", ".join("%g %s" % (v, k) for k, v in crude[part].items())))
+    se_ship, crude_ship = defaultdict(float), defaultdict(float)
+    for part, count in ship.items():
+        for k, v in cost(part, count).items(): se_ship[k] += v
+        for k, v in cost(part, count, crude).items(): crude_ship[k] += v
+    print("%-18s %12s %12s %6.2fx" % ("Repaired ship", "{:,.0f}".format(ore_equivalents(se_ship)), "{:,.0f}".format(ore_equivalents(crude_ship)), ore_equivalents(crude_ship) / ore_equivalents(se_ship)))
+    show("The whole repaired ship built from crude recipes", {"Ship": crude_ship})

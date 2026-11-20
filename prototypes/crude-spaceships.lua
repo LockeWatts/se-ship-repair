@@ -3,7 +3,7 @@
 -- Space Exploration's own part recipes and the technologies that unlock them are left
 -- exactly as they are.
 --
--- Where the crude technologies sit, and the earlier integrity research, follow the
+-- Where the crude technologies sit, and the two earlier integrity levels, follow the
 -- design of "Space Exploration: Early Spaceships" by stringweasel (MIT licence, see
 -- NOTICE.md), which this replaces.
 local shared = require("shared")
@@ -23,7 +23,9 @@ for name, crude in pairs(crude_recipes) do
     local recipe = table.deepcopy(original)
     recipe.name = shared.crude_name(name)
     recipe.enabled = false
-    recipe.localised_name = { "recipe-name.sesr-crude", { "?", { "entity-name." .. name }, { "item-name." .. name } } }
+    -- Named in the locale file ("Crude spaceship floor"). It makes the ordinary part:
+    -- Space Exploration recognises ship parts by name, so there is no separate crude part.
+    recipe.localised_name = { "recipe-name." .. recipe.name }
     recipe.ingredients = table.deepcopy(crude.ingredients)
     for _, ingredient in ipairs(recipe.ingredients) do
       if ingredient.name == "@glass" then ingredient.name = glass end
@@ -73,8 +75,8 @@ local function crude_tech(original_name)
   local tech = table.deepcopy(original)
   tech.name = shared.crude_name(original_name)
   tech.effects = effects
-  tech.localised_name = { "technology-name.sesr-crude", { "technology-name." .. original_name } }
-  tech.localised_description = { "technology-description.sesr-crude" }
+  tech.localised_name = { "technology-name." .. tech.name }
+  tech.localised_description = { "technology-description." .. tech.name }
   return tech
 end
 
@@ -107,22 +109,17 @@ end
 --------------------------------------------------------------------------------
 -- Changes to Space Exploration's own prototypes
 --------------------------------------------------------------------------------
--- Integrity research has no recipes to make crude, so the technologies themselves
--- move earlier and follow the crude Spaceship technology. Without this an early ship
--- could not grow past the base size until deep into space science.
+-- The first two levels of integrity research move earlier and follow the crude
+-- Spaceship technology, so an early ship can grow a little (from 300 to 500). The
+-- higher levels stay where Space Exploration puts them.
 local function move_integrity(level, prerequisites, packs)
   local tech = data.raw.technology["se-spaceship-integrity-" .. level]
   if not (tech and tech.unit and tech.unit.ingredients and crude_spaceship) then return end
-  if prerequisites then tech.prerequisites = prerequisites end
+  tech.prerequisites = prerequisites
   set_packs(tech, packs)
 end
 move_integrity(1, { crude_spaceship_name, space }, { space })
 move_integrity(2, { "se-spaceship-integrity-1" }, { space, production })
-move_integrity(3, nil, { space, production, "se-astronomic-science-pack-1" })
-move_integrity(4, nil, { space, production, "se-astronomic-science-pack-2" })
-move_integrity(5, nil, { space, production, "se-astronomic-science-pack-3", "se-material-science-pack-1" })
-move_integrity(6, nil, { space, production, "se-astronomic-science-pack-3", "se-material-science-pack-2" })
-move_integrity(7, nil, { space, production, "se-astronomic-science-pack-3", "se-material-science-pack-3" })
 
 -- Space pipes are needed to plumb a ship, so they can be crafted on the ground too.
 -- Their ingredients are unchanged, and the long variants stay space-only.
