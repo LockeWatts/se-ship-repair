@@ -13,7 +13,8 @@ shared = L.eval('(require("shared"))')
 layout, built = shared.layout, shared.build_layout()
 W, H = int(layout.width), int(layout.length)
 T, PAD = 44, 60                                   # pixels per tile, margin
-img = Image.new("RGB", (W * T + PAD * 2 + 250, H * T + PAD * 2), (36, 36, 36))
+WRECK = (15.6, 7.8)                               # the wreck's outline in tiles (its collision box)
+img = Image.new("RGB", (W * T + PAD * 2 + 250 + int(WRECK[0] * T) + 40, max(H * T, 420) + PAD * 2), (36, 36, 36))
 d = ImageDraw.Draw(img)
 font, small = ImageFont.load_default(size=15), ImageFont.load_default(size=12)
 
@@ -33,9 +34,12 @@ for wall in built.walls.values():
     tile(int(wall.x), int(wall.y), WALL)
 for gate in layout.gates.values():
     tile(int(gate.x), int(gate.y), GATE)
-block(layout.console.x, layout.console.y, 4, 4, (60, 120, 190), "Console\n4 x 4")
-block(layout.tank.x, layout.tank.y, 3, 3, (170, 90, 60), "Booster\ntank\n3 x 3")
-block(layout.engine.x, layout.engine.y, 3, 4, (190, 60, 60), "Rocket\nengine\n3 x 4")
+for console in layout.consoles.values():
+    block(console.x, console.y, 4, 4, (60, 120, 190), "Console\n4 x 4")
+for tank in layout.tanks.values():
+    block(tank.x, tank.y, 3, 3, (170, 90, 60), "Booster\ntank")
+for engine in layout.engines.values():
+    block(engine.x, engine.y, 3, 4, (190, 60, 60), "Rocket\nengine")
 d.text((PAD + W * T / 2, PAD - 28), "NORTH (front of ship)", font=font, fill=(220, 220, 220), anchor="mm")
 d.text((PAD + W * T / 2, PAD + H * T + 26), "engine exhaust", font=small, fill=(170, 170, 170), anchor="mm")
 
@@ -47,7 +51,12 @@ d.text((lx, ly), "%d x %d tiles" % (W, H), font=font, fill=(235, 235, 235)); ly 
 for colour, name, count in legend:
     d.rectangle([lx, ly, lx + 20, ly + 20], fill=colour, outline=(28, 28, 28))
     d.text((lx + 30, ly + 10), "%s  x %d" % (name, int(count)), font=font, fill=(220, 220, 220), anchor="lm"); ly += 30
-free = (W - 2) * (H - 2) - 16 - 9 - 9
+free = (W - 2) * (H - 2) - 16 * int(counts.console) - 9 * int(counts.tank) - 9 * int(counts.engine)
 ly += 14
 d.multiline_text((lx, ly), "Free interior floor:\n%d tiles" % free, font=small, fill=(170, 170, 170))
+wx, wy = lx + 230, PAD + 60
+d.text((wx, PAD + 6), "The wreck, same scale", font=font, fill=(235, 235, 235))
+d.rectangle([wx, wy, wx + WRECK[0] * T, wy + WRECK[1] * T], fill=(70, 62, 52), outline=(200, 170, 120), width=2)
+d.multiline_text((wx + WRECK[0] * T / 2, wy + WRECK[1] * T / 2), "Crashed spaceship\n%.1f x %.1f tiles\n(lies east-west)" % WRECK, font=font, fill=(235, 225, 205), anchor="mm", align="center")
+d.multiline_text((wx, wy + WRECK[1] * T + 14), "Wreck outline: %d tiles of ground\nRepaired ship: %d tiles" % (round(WRECK[0] * WRECK[1]), W * H), font=small, fill=(170, 170, 170))
 img.save(sys.argv[1])

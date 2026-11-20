@@ -12,7 +12,7 @@ The crashed ship becomes a repair site. Open it to see what the current stage ne
 2. **Systems**: the spaceship console.
 3. **Propulsion**: the rocket engine and booster tank. This stage needs the new Spaceship repair technology.
 
-When the last stage finishes, the wreck is replaced by a small complete spaceship. It is an ordinary Space Exploration ship from then on: give it power and rocket fuel and it can launch.
+When the last stage finishes, the wreck is replaced by a complete spaceship about its own size. It is an ordinary Space Exploration ship from then on: give it power and rocket fuel and it can launch.
 
 Each stage costs a share (half, by default) of what the same parts cost to craft.
 
@@ -23,7 +23,7 @@ Spaceship repair sits where Early Spaceships puts the Spaceship technology, at r
 ## Good to know
 
 - The wreck can no longer be mined or destroyed.
-- The finished ship needs a 9 x 14 tile area centred on the wreck. It is outlined when the last stage begins. Trees, rocks and loose wreckage are cleared automatically; anything you built there has to be moved first, and the mod tells you what is in the way.
+- The finished ship needs a 12 x 19 tile area centred on the wreck. It is outlined when the last stage begins. Trees, rocks and loose wreckage are cleared automatically; anything you built there has to be moved first, and the mod tells you what is in the way.
 - Added to an existing save where the wreck is gone, the mod places a repair site near spawn.
 - Costs, timings and the ship's layout are set in `config.lua` and `shared.lua`.
 

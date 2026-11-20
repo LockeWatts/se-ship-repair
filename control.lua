@@ -254,11 +254,17 @@ local function build_ship(surface, origin, force, site, removable, characters)
     -- Gates sit in the side walls, so they run north to south.
     complete = place(surface, force, shared.parts.gate, origin, { x = gate.x + 0.5, y = gate.y + 0.5 }, defines.direction.north) and complete
   end
-  complete = place(surface, force, shared.parts.tank, origin, layout.tank) and complete
-  complete = place(surface, force, shared.parts.engine, origin, layout.engine) and complete
+  for _, tank in ipairs(layout.tanks) do
+    complete = place(surface, force, shared.parts.tank, origin, tank) and complete
+  end
+  for _, engine in ipairs(layout.engines) do
+    complete = place(surface, force, shared.parts.engine, origin, engine) and complete
+  end
   -- The console goes in last: building it is what makes Space Exploration register
   -- the ship and check its hull, so everything else should already be there.
-  complete = place(surface, force, shared.parts.console, origin, layout.console) and complete
+  for _, console in ipairs(layout.consoles) do
+    complete = place(surface, force, shared.parts.console, origin, console) and complete
+  end
 
   -- Anyone standing where a part now is gets moved to the nearest free spot.
   for _, character in pairs(characters) do

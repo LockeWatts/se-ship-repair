@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 20. 11. 2026
+  Changes:
+    - The repaired ship is larger, 12 x 19 tiles with two engines and two booster tanks, to match the size of the wreck.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 20. 11. 2026
   Features:

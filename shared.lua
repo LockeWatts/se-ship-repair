@@ -32,41 +32,61 @@ shared.stage_parts = {
   { "engine", "tank" },
 }
 
--- The repaired ship: a 9 x 14 hull with its nose to the north, as SE requires.
+-- The repaired ship: a 12 x 19 hull with its nose to the north, as SE requires.
+-- That is about the size of the wreck as it is drawn, turned to stand north-south.
 -- Tile coordinates count from the hull's top-left tile, (0, 0).
---   rows 1-4   console (4 x 4)
---   row 6      a gate in each side wall
---   rows 7-9   booster tank (3 x 3), feeding straight into the engine below it
---   rows 10-13 rocket engine (3 x 4), its tail forming part of the rear hull
+--   rows 2-5    console (4 x 4)
+--   row 8       a gate in each side wall
+--   rows 12-14  two booster tanks (3 x 3), each feeding straight into the engine below it
+--   rows 15-18  two rocket engines (3 x 4), their tails forming part of the rear hull
+-- An engine takes fuel through the top of its outer columns, and a tank gives it out
+-- through the middle of each side, so each tank sits one column outboard of its engine.
 shared.layout = {
-  width = 9,
-  length = 14,
+  width = 12,
+  length = 19,
   -- Entity centres, measured from the top-left corner of the hull.
-  console = { x = 4, y = 3 },
-  tank = { x = 3.5, y = 8.5 },
-  engine = { x = 4.5, y = 12 },
-  gates = { { x = 0, y = 6 }, { x = 8, y = 6 } },
-  engine_columns = { first = 3, last = 5 },
+  consoles = { { x = 6, y = 4 } },
+  tanks = { { x = 2.5, y = 13.5 }, { x = 9.5, y = 13.5 } },
+  engines = { { x = 3.5, y = 17 }, { x = 8.5, y = 17 } },
+  -- Tile coordinates of the gates.
+  gates = { { x = 0, y = 8 }, { x = 11, y = 8 } },
+}
+
+-- Sizes of the parts in tiles, for working out which hull tiles they replace and
+-- for drawing the layout.
+shared.part_size = {
+  console = { w = 4, h = 4 },
+  tank = { w = 3, h = 3 },
+  engine = { w = 3, h = 4 },
 }
 
 -- Returns the wall tile coordinates and how many of each part the ship contains.
 function shared.build_layout()
   local l = shared.layout
-  local gate_at = {}
-  for _, gate in ipairs(l.gates) do gate_at[gate.x .. "," .. gate.y] = true end
+  -- Hull tiles that hold something other than a wall: gates and engine tails.
+  local taken = {}
+  for _, gate in ipairs(l.gates) do taken[gate.x .. "," .. gate.y] = true end
+  for _, engine in ipairs(l.engines) do
+    local size = shared.part_size.engine
+    for x = math.floor(engine.x - size.w / 2), math.floor(engine.x - size.w / 2) + size.w - 1 do
+      for y = math.floor(engine.y - size.h / 2), math.floor(engine.y - size.h / 2) + size.h - 1 do
+        taken[x .. "," .. y] = true
+      end
+    end
+  end
   local walls = {}
   for y = 0, l.length - 1 do
     for x = 0, l.width - 1 do
       local on_edge = x == 0 or y == 0 or x == l.width - 1 or y == l.length - 1
-      local engine_tail = y == l.length - 1 and x >= l.engine_columns.first and x <= l.engine_columns.last
-      if on_edge and not engine_tail and not gate_at[x .. "," .. y] then
-        table.insert(walls, { x = x, y = y })
-      end
+      if on_edge and not taken[x .. "," .. y] then table.insert(walls, { x = x, y = y }) end
     end
   end
   return {
     walls = walls,
-    counts = { floor = l.width * l.length, wall = #walls, gate = #l.gates, console = 1, engine = 1, tank = 1 },
+    counts = {
+      floor = l.width * l.length, wall = #walls, gate = #l.gates,
+      console = #l.consoles, engine = #l.engines, tank = #l.tanks,
+    },
   }
 end
 
