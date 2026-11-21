@@ -10,7 +10,12 @@ config.salvage_factor = 0.5
 -- the wreck's recipe is one step, and the stage is finished after this many of them.
 -- The hull goes in 1% steps. The other two stages cost far less, so they use fewer,
 -- larger steps to keep every amount a whole number.
-config.stage_steps = { 100, 25, 20 }
+config.stage_steps = { 100, 20, 20 }
+
+-- Per-step amounts set by hand, by stage number, where the calculated one is awkward.
+config.step_overrides = {
+  [2] = { ["processing-unit"] = 10 },
+}
 
 -- Seconds one step takes once its materials are in.
 config.step_time = 1

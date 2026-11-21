@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.0
+Date: 21. 11. 2026
+  Changes:
+    - Repair progress is shown in a panel beside the wreck's window, with a progress bar, in place of text above the wreck.
+    - The systems stage is now 20 steps of 10 processing units, 1 rocket control unit, 1 low density structure and 1 glass.
+    - Repair steps no longer produce a hidden item; the wreck counts its own finished crafts.
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 21. 11. 2026
   Changes:

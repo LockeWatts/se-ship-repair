@@ -125,11 +125,20 @@ local player_force = { name = "player", valid = true, print = say("FORCE: ") }
 function player_force.get_spawn_position() return { x = 0, y = 0 } end
 local neutral = { name = "neutral", valid = true, print = say("NEUTRAL: ") }
 game = { tick = 0, surfaces = { nauvis = surface }, forces = { player = player_force, neutral = neutral }, print = say("GAME: ") }
-function game.get_player() return { admin = true, print = say("PLAYER: ") } end
-rendering = { draw_rectangle = function() world.rectangles = world.rectangles + 1 end, draw_text = function(spec) world.last_text = ser(spec.text) end }
+rendering = { draw_rectangle = function() world.rectangles = world.rectangles + 1 end }
+defines.relative_gui_type = { assembling_machine_gui = "assembling-machine-gui" } defines.relative_gui_position = { right = "right" }
+defines.events = { on_gui_opened = "opened", on_gui_closed = "closed" }
+local function element(spec, parent) local e = { name = spec.name, type = spec.type, caption = spec.caption, value = spec.value, style = {}, children = {} }
+  function e.add(child) local c = element(child, e) if child.name then e[child.name] = c end return c end
+  function e.destroy() if parent and spec.name then parent[spec.name] = nil end end
+  return e end
+the_player = { admin = true, print = say("PLAYER: "), gui = { relative = element({ name = "relative" }) } }
+game.connected_players = { the_player }
+function game.get_player() return the_player end
+events = {}
 storage = {}
 handlers = {}
-script = { on_init = function(f) handlers.init = f end, on_configuration_changed = function(f) handlers.config = f end, on_nth_tick = function(n, f) handlers.tick = f handlers.interval = n end }
+script = { on_event = function(id, f) events[id] = f end, on_init = function(f) handlers.init = f end, on_configuration_changed = function(f) handlers.config = f end, on_nth_tick = function(n, f) handlers.tick = f handlers.interval = n end }
 commands = { add_command = function(name, help, f) handlers.command = f end }
 function advance(seconds) for _ = 1, seconds do game.tick = game.tick + 60 handlers.tick({ tick = game.tick }) end end
 function add(name, x, y, kind, force) return make_entity(surface, { name = name, position = { x = x, y = y }, force = force or "player" }, kind) end
@@ -146,8 +155,12 @@ function count(name) local n = 0 for _, e in ipairs(world.entities) do if e.name
   advance(6)  note("after 11 s: state=" .. storage.state .. " stage=" .. tostring(storage.stage) .. " site=" .. tostring(storage.site and storage.site.name) .. " at " .. ser(storage.site and storage.site.position)
     .. " wrecks left=" .. count("crash-site-spaceship") .. " spilled=" .. ser(world.spilled) .. " destructible=" .. tostring(storage.site and storage.site.destructible))
   -- 37 steps crafted, with their tokens sitting in the output
-  storage.site.products_finished = 37 storage.site.inv.insert({ name = "sesr-repaired-hull", count = 37 }) advance(1)
-  note("37 hull steps: stage=" .. storage.stage .. " text=" .. tostring(world.last_text) .. " tokens left=" .. storage.site.inv.get_item_count("sesr-repaired-hull"))
+  events.opened({ player_index = 1, entity = storage.site })
+  storage.site.products_finished = 37 advance(1)
+  local panel = the_player.gui.relative.sesr_repair_progress
+  note("37 hull steps: stage=" .. storage.stage .. " panel: " .. ser(panel.stage.caption) .. " bar=" .. panel.bar.value .. " " .. ser(panel.count.caption))
+  events.closed({ player_index = 1, entity = storage.site })
+  note("panel after closing: " .. tostring(the_player.gui.relative.sesr_repair_progress))
   storage.site.products_finished = 100 advance(1)
   note("stage 1 done: stage=" .. storage.stage .. " site=" .. storage.site.name)
   handlers.command({ player_index = 1 }) advance(1)

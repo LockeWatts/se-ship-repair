@@ -54,7 +54,8 @@ for stage, parts in ipairs(shared.stage_parts) do
   local steps = config.stage_steps[stage]
   local ingredients = {}
   for _, name in ipairs(names) do
-    local amount = math.min(65535, tidy(totals[name] * config.salvage_factor / steps))
+    local override = config.step_overrides[stage] and config.step_overrides[stage][name]
+    local amount = override or math.min(65535, tidy(totals[name] * config.salvage_factor / steps))
     if amount > 0 then table.insert(ingredients, { type = "item", name = name, amount = amount }) end
   end
 

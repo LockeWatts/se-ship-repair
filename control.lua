@@ -35,16 +35,14 @@ local function warn(force, message)
   tell(force, message)
 end
 
--- Drops everything an entity holds onto the ground, except repair progress tokens.
+-- Drops everything an entity holds onto the ground.
 local function spill_contents(entity)
-  local is_token = {}
-  for _, name in pairs(shared.token_names) do is_token[name] = true end
   for index = 1, entity.get_max_inventory_index() do
     local inventory = entity.get_inventory(index)
     if inventory then
       for slot = 1, #inventory do
         local stack = inventory[slot]
-        if stack.valid_for_read and not is_token[stack.name] then
+        if stack.valid_for_read then
           entity.surface.spill_item_stack{
             position = entity.position,
             stack = stack,
@@ -69,6 +67,7 @@ local function create_site(surface, position, force, stage)
   site.destructible = false
   storage.site = site
   storage.stage = stage
+  storage.progress = 0
   storage.state = "repairing"
   return site
 end
@@ -138,31 +137,57 @@ end
 --------------------------------------------------------------------------------
 -- Repairing: move to the next stage when the current one finishes
 --------------------------------------------------------------------------------
--- How many steps of the current stage are done. The machine counts its own crafts;
--- the tokens they produce are only there to give the recipe a result, so they are
--- cleared away.
-local function steps_done(site, stage)
-  local output = site.get_output_inventory()
-  if output then
-    local tokens = output.get_item_count(shared.token_names[stage])
-    if tokens > 0 then output.remove({ name = shared.token_names[stage], count = tokens }) end
-  end
-  return site.products_finished
+--------------------------------------------------------------------------------
+-- Progress panel: shown beside the wreck's own window while it is open
+--------------------------------------------------------------------------------
+local PANEL = "sesr_repair_progress"
+
+local function close_panel(player)
+  local panel = player.gui.relative[PANEL]
+  if panel then panel.destroy() end
 end
 
-local function show_progress(site, stage, done)
-  local percent = math.min(100, math.floor(100 * done / config.stage_steps[stage]))
-  rendering.draw_text{
-    text = { "sesr.progress", { "sesr.stage-" .. shared.stage_keys[stage] }, percent },
-    surface = site.surface,
-    target = { entity = site, offset = { 0, -5 } },
-    color = { 1, 0.8, 0.3 },
-    scale = 2,
-    alignment = "center",
-    forces = { site.force },
-    time_to_live = CHECK_INTERVAL + 5,
-  }
+local function update_panel(player)
+  local panel = player.gui.relative[PANEL]
+  if not panel then return end
+  local site, stage = storage.site, storage.stage
+  if not (storage.state == "repairing" and site and site.valid and stage) then
+    close_panel(player)
+    return
+  end
+  local steps = config.stage_steps[stage]
+  local done = math.min(steps, storage.progress or 0)
+  panel.stage.caption = { "sesr.panel-stage", stage, shared.final_stage, { "sesr.stage-" .. shared.stage_keys[stage] } }
+  panel.bar.value = done / steps
+  panel.count.caption = { "sesr.panel-steps", done, steps }
 end
+
+local function open_panel(player)
+  close_panel(player)
+  local panel = player.gui.relative.add{
+    type = "frame",
+    name = PANEL,
+    caption = { "sesr.panel-title" },
+    direction = "vertical",
+    anchor = { gui = defines.relative_gui_type.assembling_machine_gui, position = defines.relative_gui_position.right },
+  }
+  panel.add{ type = "label", name = "stage" }
+  local bar = panel.add{ type = "progressbar", name = "bar", value = 0 }
+  bar.style.width = 220
+  panel.add{ type = "label", name = "count" }
+  update_panel(player)
+end
+
+script.on_event(defines.events.on_gui_opened, function(event)
+  local entity = event.entity
+  if entity and entity.valid and storage.site and entity == storage.site then
+    open_panel(game.get_player(event.player_index))
+  end
+end)
+
+script.on_event(defines.events.on_gui_closed, function(event)
+  if event.entity then close_panel(game.get_player(event.player_index)) end
+end)
 
 local function repair()
   local site, stage = storage.site, storage.stage
@@ -172,12 +197,14 @@ local function repair()
     storage.search_from = game.tick
     return
   end
-  local done = steps_done(site, stage)
+  -- The wreck counts its own finished crafts, and each craft is one step.
+  local done = site.products_finished
   if storage.force_complete then
     done = config.stage_steps[stage]
     storage.force_complete = nil
   end
-  show_progress(site, stage, done)
+  storage.progress = done
+  for _, player in pairs(game.connected_players) do update_panel(player) end
   if done < config.stage_steps[stage] then return end
 
   local surface, position, force = site.surface, site.position, site.force

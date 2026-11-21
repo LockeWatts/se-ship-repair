@@ -7,11 +7,10 @@ shared.category = shared.prefix .. "ship-repair"
 shared.tech_name = shared.prefix .. "spaceship-repair"
 
 shared.stage_keys = { "hull", "systems", "propulsion" }
-shared.site_names, shared.recipe_names, shared.token_names = {}, {}, {}
+shared.site_names, shared.recipe_names = {}, {}
 for index, key in ipairs(shared.stage_keys) do
   shared.site_names[index] = shared.prefix .. "repair-site-" .. key
   shared.recipe_names[index] = shared.prefix .. "repair-" .. key
-  shared.token_names[index] = shared.prefix .. "repaired-" .. key
 end
 shared.final_stage = #shared.stage_keys
 

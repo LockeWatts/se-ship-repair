@@ -6,10 +6,10 @@ In [Space Exploration](https://mods.factorio.com/mod/space-exploration), this mo
 
 ## How it works
 
-The crashed ship becomes a repair site, and each stage is done a little at a time, the way a rocket silo builds a rocket. Open the wreck to see what one step needs, keep it supplied, and watch the percentage above it climb.
+The crashed ship becomes a repair site, and each stage is done a little at a time, the way a rocket silo builds a rocket. Open the wreck to see what one step needs and, in the panel beside it, how far the stage has come. Keep it supplied and it keeps going.
 
 1. **Hull** (100 steps): the floor, walls and doors.
-2. **Systems** (25 steps): the spaceship console.
+2. **Systems** (20 steps): the spaceship console.
 3. **Propulsion** (20 steps): the rocket engines and booster tanks. This stage needs the new Spaceship repair technology.
 
 When the last stage finishes, the wreck is replaced by a complete spaceship about its own size. It is an ordinary Space Exploration ship from then on: give it power and rocket fuel and it can launch.

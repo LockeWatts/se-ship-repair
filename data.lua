@@ -46,17 +46,6 @@ for stage, key in ipairs(shared.stage_keys) do
   site.module_slots = 0
   site.allowed_effects = {}
   site.graphics_set = { animation = wreck_animation() }
-  -- Progress is counted by the script, so finished steps must never clog the machine.
-  site.ignore_output_full = true
-
-  local token = {
-    type = "item",
-    name = shared.token_names[stage],
-    icon = wreck.icon,
-    icon_size = wreck.icon_size,
-    stack_size = 200,
-    hidden = true,
-  }
 
   local recipe = {
     type = "recipe",
@@ -70,7 +59,10 @@ for stage, key in ipairs(shared.stage_keys) do
     -- One step of the stage. Real costs are worked out in data-final-fixes, once every
     -- mod has set its part recipes.
     ingredients = { { type = "item", name = "iron-plate", amount = 1 } },
-    results = { { type = "item", name = shared.token_names[stage], amount = 1 } },
+    -- A step makes nothing: the wreck counts its own finished crafts. Space Exploration's
+    -- gate scaffold works the same way.
+    results = {},
+    subgroup = "intermediate-product",
     hide_from_player_crafting = true,
     allow_productivity = false,
     allow_as_intermediate = false,
@@ -78,5 +70,5 @@ for stage, key in ipairs(shared.stage_keys) do
     auto_recycle = false,
   }
 
-  data:extend({ site, token, recipe })
+  data:extend({ site, recipe })
 end
