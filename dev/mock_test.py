@@ -65,7 +65,7 @@ data.raw.technology["se-spaceship-integrity-1"] = { type = "technology", name = 
   local built = shared.build_layout()
   out[#out + 1] = "PART COUNTS " .. ser(built.counts)
   for i, name in ipairs(shared.recipe_names) do local r = data.raw.recipe[name]
-    out[#out + 1] = "RECIPE " .. name .. " enabled=" .. tostring(r.enabled) .. " time=" .. r.energy_required
+    out[#out + 1] = "RECIPE " .. name .. " enabled=" .. tostring(r.enabled) .. " time=" .. r.energy_required .. " x " .. require("config").stage_steps[i] .. " steps"
     for _, ing in ipairs(r.ingredients) do out[#out + 1] = string.format("    %-24s %5d", ing.name, ing.amount) end
     local site = data.raw["assembling-machine"][shared.site_names[i]]
     out[#out + 1] = "  SITE " .. site.name .. " fixed_recipe=" .. site.fixed_recipe .. " minable=" .. tostring(site.minable) .. " layers=" .. #site.graphics_set.animation.layers .. " dice_x=" .. tostring(site.graphics_set.animation.layers[1].dice_x)
@@ -92,12 +92,13 @@ local function inventory(owner) local inv = { items = {} }
       if it then return { valid_for_read = true, name = it.name, count = it.count } end return { valid_for_read = false } end end })
   function inv.get_item_count(name) local n = 0 for _, it in pairs(inv.items) do if it.name == name then n = n + it.count end end return n end
   function inv.insert(stack) inv.items[#inv.items + 1] = { name = stack.name, count = stack.count } return stack.count end
+  function inv.remove(stack) for i = #inv.items, 1, -1 do if inv.items[i].name == stack.name then table.remove(inv.items, i) end end return stack.count end
   return inv end
 local boxes = { ["sesr-repair-site-hull"] = true, ["sesr-repair-site-systems"] = true, ["sesr-repair-site-propulsion"] = true }
 local function make_entity(surface, spec, kind)
   local e = { name = spec.name, type = kind or "assembling-machine", position = { x = spec.position.x or spec.position[1], y = spec.position.y or spec.position[2] },
     force = spec.force, surface = surface, valid = true, unit_number = next_unit, direction = spec.direction, raised = spec.raise_built,
-    localised_name = { "entity-name." .. spec.name }, destructible = true, inv = nil }
+    localised_name = { "entity-name." .. spec.name }, destructible = true, inv = nil, products_finished = 0 }
   next_unit = next_unit + 1
   if type(e.force) == "string" then e.force = game.forces[e.force] end
   e.inv = inventory(e)
@@ -125,7 +126,7 @@ function player_force.get_spawn_position() return { x = 0, y = 0 } end
 local neutral = { name = "neutral", valid = true, print = say("NEUTRAL: ") }
 game = { tick = 0, surfaces = { nauvis = surface }, forces = { player = player_force, neutral = neutral }, print = say("GAME: ") }
 function game.get_player() return { admin = true, print = say("PLAYER: ") } end
-rendering = { draw_rectangle = function() world.rectangles = world.rectangles + 1 end }
+rendering = { draw_rectangle = function() world.rectangles = world.rectangles + 1 end, draw_text = function(spec) world.last_text = ser(spec.text) end }
 storage = {}
 handlers = {}
 script = { on_init = function(f) handlers.init = f end, on_configuration_changed = function(f) handlers.config = f end, on_nth_tick = function(n, f) handlers.tick = f handlers.interval = n end }
@@ -144,7 +145,10 @@ function count(name) local n = 0 for _, e in ipairs(world.entities) do if e.name
   advance(5)  note("after 5 s: state=" .. storage.state .. " (still waiting)")
   advance(6)  note("after 11 s: state=" .. storage.state .. " stage=" .. tostring(storage.stage) .. " site=" .. tostring(storage.site and storage.site.name) .. " at " .. ser(storage.site and storage.site.position)
     .. " wrecks left=" .. count("crash-site-spaceship") .. " spilled=" .. ser(world.spilled) .. " destructible=" .. tostring(storage.site and storage.site.destructible))
-  handlers.command({ player_index = 1 }) advance(1)
+  -- 37 steps crafted, with their tokens sitting in the output
+  storage.site.products_finished = 37 storage.site.inv.insert({ name = "sesr-repaired-hull", count = 37 }) advance(1)
+  note("37 hull steps: stage=" .. storage.stage .. " text=" .. tostring(world.last_text) .. " tokens left=" .. storage.site.inv.get_item_count("sesr-repaired-hull"))
+  storage.site.products_finished = 100 advance(1)
   note("stage 1 done: stage=" .. storage.stage .. " site=" .. storage.site.name)
   handlers.command({ player_index = 1 }) advance(1)
   note("stage 2 done: stage=" .. storage.stage .. " site=" .. storage.site.name .. " outline drawn=" .. world.rectangles)

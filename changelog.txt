@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.0
+Date: 21. 11. 2026
+  Changes:
+    - Repair stages are now done in steps: 100 for the hull, 25 for systems and 20 for propulsion. The wreck's recipe is one step.
+    - Progress is shown as a percentage above the wreck.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.0
 Date: 20. 11. 2026
   Changes:

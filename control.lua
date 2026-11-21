@@ -138,9 +138,30 @@ end
 --------------------------------------------------------------------------------
 -- Repairing: move to the next stage when the current one finishes
 --------------------------------------------------------------------------------
-local function stage_finished(site, stage)
+-- How many steps of the current stage are done. The machine counts its own crafts;
+-- the tokens they produce are only there to give the recipe a result, so they are
+-- cleared away.
+local function steps_done(site, stage)
   local output = site.get_output_inventory()
-  return output ~= nil and output.get_item_count(shared.token_names[stage]) > 0
+  if output then
+    local tokens = output.get_item_count(shared.token_names[stage])
+    if tokens > 0 then output.remove({ name = shared.token_names[stage], count = tokens }) end
+  end
+  return site.products_finished
+end
+
+local function show_progress(site, stage, done)
+  local percent = math.min(100, math.floor(100 * done / config.stage_steps[stage]))
+  rendering.draw_text{
+    text = { "sesr.progress", { "sesr.stage-" .. shared.stage_keys[stage] }, percent },
+    surface = site.surface,
+    target = { entity = site, offset = { 0, -5 } },
+    color = { 1, 0.8, 0.3 },
+    scale = 2,
+    alignment = "center",
+    forces = { site.force },
+    time_to_live = CHECK_INTERVAL + 5,
+  }
 end
 
 local function repair()
@@ -151,7 +172,13 @@ local function repair()
     storage.search_from = game.tick
     return
   end
-  if not stage_finished(site, stage) then return end
+  local done = steps_done(site, stage)
+  if storage.force_complete then
+    done = config.stage_steps[stage]
+    storage.force_complete = nil
+  end
+  show_progress(site, stage, done)
+  if done < config.stage_steps[stage] then return end
 
   local surface, position, force = site.surface, site.position, site.force
   if stage < shared.final_stage then
@@ -327,7 +354,6 @@ commands.add_command("ship-repair-advance", { "sesr.command-advance-help" }, fun
     return
   end
   -- The technology gate is skipped too, so the last stage can be tested directly.
-  local output = site.get_output_inventory()
-  if output then output.insert({ name = shared.token_names[storage.stage], count = 1 }) end
+  storage.force_complete = true
   reply({ "sesr.command-advanced", shared.stage_keys[storage.stage] })
 end)

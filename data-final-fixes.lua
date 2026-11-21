@@ -4,6 +4,7 @@ local shared = require("shared")
 -- Each stage costs a share of what its parts would cost to craft with the crude
 -- recipes, as those stand after every other mod has adjusted them. The crude recipes
 -- are used because the repair has to be possible before space-era materials exist.
+-- That cost is split into equal steps, and the stage's recipe is one step.
 local counts = shared.build_layout().counts
 
 local part_of_item = {}
@@ -32,6 +33,14 @@ local function add_cost(item_name, amount, totals, depth)
   end
 end
 
+-- Rounds a per-step amount to a tidy number: down to a multiple of 5 from 10 upward,
+-- to the nearest whole number below that, and nothing at all under a half.
+local function tidy(amount)
+  if amount >= 10 then return math.floor(amount / 5) * 5 end
+  if amount >= 0.5 then return math.floor(amount + 0.5) end
+  return 0
+end
+
 for stage, parts in ipairs(shared.stage_parts) do
   local totals = {}
   for _, part in ipairs(parts) do
@@ -42,13 +51,11 @@ for stage, parts in ipairs(shared.stage_parts) do
   for name in pairs(totals) do table.insert(names, name) end
   table.sort(names)
 
+  local steps = config.stage_steps[stage]
   local ingredients = {}
   for _, name in ipairs(names) do
-    table.insert(ingredients, {
-      type = "item",
-      name = name,
-      amount = math.min(65535, math.max(1, math.ceil(totals[name] * config.salvage_factor))),
-    })
+    local amount = math.min(65535, tidy(totals[name] * config.salvage_factor / steps))
+    if amount > 0 then table.insert(ingredients, { type = "item", name = name, amount = amount }) end
   end
 
   local recipe = data.raw.recipe[shared.recipe_names[stage]]

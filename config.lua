@@ -6,8 +6,14 @@ local config = {}
 -- multiplied by the number of each part in the repaired ship.
 config.salvage_factor = 0.5
 
--- Seconds each repair stage takes once its materials are in.
-config.stage_time = 60
+-- Each repair stage is done in equal steps, like a rocket silo building rocket parts:
+-- the wreck's recipe is one step, and the stage is finished after this many of them.
+-- The hull goes in 1% steps. The other two stages cost far less, so they use fewer,
+-- larger steps to keep every amount a whole number.
+config.stage_steps = { 100, 25, 20 }
+
+-- Seconds one step takes once its materials are in.
+config.step_time = 1
 
 -- Ticks to wait after the mod starts before looking for the wreck, so the freeplay
 -- scenario has created the crash site and its intro is under way (60 ticks = 1 second).

@@ -6,15 +6,15 @@ In [Space Exploration](https://mods.factorio.com/mod/space-exploration), this mo
 
 ## How it works
 
-The crashed ship becomes a repair site. Open it to see what the current stage needs, put the materials in, and wait for it to finish.
+The crashed ship becomes a repair site, and each stage is done a little at a time, the way a rocket silo builds a rocket. Open the wreck to see what one step needs, keep it supplied, and watch the percentage above it climb.
 
-1. **Hull**: the floor, walls and gates.
-2. **Systems**: the spaceship console.
-3. **Propulsion**: the rocket engine and booster tank. This stage needs the new Spaceship repair technology.
+1. **Hull** (100 steps): the floor, walls and doors.
+2. **Systems** (25 steps): the spaceship console.
+3. **Propulsion** (20 steps): the rocket engines and booster tanks. This stage needs the new Spaceship repair technology.
 
 When the last stage finishes, the wreck is replaced by a complete spaceship about its own size. It is an ordinary Space Exploration ship from then on: give it power and rocket fuel and it can launch.
 
-Each stage costs a share (half, by default) of what the same parts cost to craft.
+In total each stage costs about half of what the same parts cost to craft with the crude recipes, which is close to what Space Exploration's own recipes would charge.
 
 ## Spaceships at rocket science
 

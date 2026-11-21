@@ -46,13 +46,15 @@ for stage, key in ipairs(shared.stage_keys) do
   site.module_slots = 0
   site.allowed_effects = {}
   site.graphics_set = { animation = wreck_animation() }
+  -- Progress is counted by the script, so finished steps must never clog the machine.
+  site.ignore_output_full = true
 
   local token = {
     type = "item",
     name = shared.token_names[stage],
     icon = wreck.icon,
     icon_size = wreck.icon_size,
-    stack_size = 1,
+    stack_size = 200,
     hidden = true,
   }
 
@@ -64,8 +66,9 @@ for stage, key in ipairs(shared.stage_keys) do
     icon_size = wreck.icon_size,
     -- The last stage waits for the Spaceship repair technology.
     enabled = stage < shared.final_stage,
-    energy_required = config.stage_time,
-    -- Real costs are worked out in data-final-fixes, once every mod has set its part recipes.
+    energy_required = config.step_time,
+    -- One step of the stage. Real costs are worked out in data-final-fixes, once every
+    -- mod has set its part recipes.
     ingredients = { { type = "item", name = "iron-plate", amount = 1 } },
     results = { { type = "item", name = shared.token_names[stage], amount = 1 } },
     hide_from_player_crafting = true,
