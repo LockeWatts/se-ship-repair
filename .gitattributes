@@ -1,6 +1,7 @@
 # Development tools and repository files are left out of release archives,
 # so they are never shipped as part of the mod.
 /dev export-ignore
+/.github export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
 README.md export-ignore

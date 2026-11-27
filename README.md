@@ -45,3 +45,5 @@ It replaces Space Exploration: Early Spaceships and cannot be used alongside it.
 ## Credits
 
 Space Exploration is by Earendel. Where the crude technologies sit follows the design of Early Spaceships by stringweasel; see `NOTICE.md`. This mod contains none of Space Exploration's code or artwork.
+
+Released under the MIT licence; see `LICENSE`.

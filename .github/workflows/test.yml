@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install lupa
+      - name: Run mock tests
+        run: python3 dev/mock_test.py
+      - name: Build the mod zip
+        run: |
+          mkdir -p dist
+          sh dev/package.sh dist
+      - name: Check what a release would do
+        run: sh dev/publish.sh dist/*.zip --dry-run
